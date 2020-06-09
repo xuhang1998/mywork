@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <title>Layui</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/layui1/css/layui.css" media="all">
+    <link rel="stylesheet" type="text/css" media="screen" href="/css/bootstrap.min.css">
+    <script type="text/javascript" src="/js/libs/jquery-2.1.1.min.js"></script>
+    <script src="/js/plugin/bootstrapvalidator/bootstrapValidator.min.js"></script>
+    <script type="text/javascript" src="/js/common.js"></script>
+    <script type="text/javascript" src="/js/my/roles/role.js"></script>
+    <script type="text/javascript" src="/js/jq.js"></script>
+    <link rel="stylesheet" href="/ztree/css/zTreeStyle/zTreeStyle.css">
+
+</head>
+<body>
+<form class="form-horizontal" onsubmit="return false" id="form1" style="display: none;">
+    <fieldset>
+        <div class="form-group">
+            <label class="col-md-2 control-label">ID</label>
+            <div class="col-md-10">
+                <input class="form-control" placeholder="ID" type="text" name="id" id="id1"
+                       data-bv-notempty="true"
+                       data-bv-notempty-message="ID 不能为空">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-md-2 control-label">用户名</label>
+            <div class="col-md-10">
+                <input class="form-control" placeholder="用户名" type="text" name="username" id="username1"
+                       data-bv-notempty="true"
+                       data-bv-notempty-message="用户名 不能为空">
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            <label class="col-md-2 control-label">昵称</label>
+            <div class="col-md-10">
+                <input class="form-control" placeholder="昵称" type="text" name="nickname" id="nickname1">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-md-2 control-label">电话</label>
+            <div class="col-md-10">
+                <input class="form-control" placeholder="电话" type="text" maxlength="20" name="telephone" id="telephone1">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-md-2 control-label">邮箱</label>
+            <div class="col-md-10">
+                <input class="form-control" placeholder="邮箱" type="text" maxlength="50" name="email" id="email1">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-md-2 control-label">生日</label>
+            <div class="col-md-10" style="width: 200px">
+                <input type="text" class="form-control"  name="birthday" id="birthday1">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-md-2 control-label">住址</label>
+            <div class="layui-input-inline">
+                <select name="province" id="province" onchange="changeCity()" onfocus="on()">
+
+                </select>
+            </div>
+            <div class="layui-input-inline">
+                <select name="city" id="city" onchange="changeDistrict()">
+
+                </select>
+            </div>
+            <div class="layui-input-inline">
+                <select id="district" name="district" onchange="changeDhiddenValue()">
+
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-md-2 control-label">爱好</label>
+            <div class="col-md-10">
+                <ul id="hobbyTree" class="ztree"></ul>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-md-2 control-label">权限</label>
+            <div class="col-md-10">
+                <ul id="powerTree" class="ztree"></ul>
+            </div>
+        </div>
+
+        <input type="hidden" name="phidden" id="phidden">
+        <input type="hidden" name="chidden" id="chidden">
+        <input type="hidden" name="dhidden" id="dhidden">
+        <div class="form-group">
+            <label class="col-md-2 control-label">性别</label>
+            <div class="col-md-10" style="width: 100px">
+                <select class="form-control input-sm" name="sex" id="sex1">
+                    <option value="男">男</option>
+                    <option value="女">女</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-actions">
+            <div class="row" align="center">
+                <div class="col-md-12">
+
+                    <button class="btn btn-primary" type="submit" onclick="add()">
+                        <i class="fa fa-save"></i> 保存
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </fieldset>
+</form>
+<div class="demoTable">
+    搜索ID：
+    <div class="layui-inline">
+        <input name="id" class="layui-input" id="demoReload" autocomplete="off">
+    </div>
+
+    <button class="layui-btn" data-type="reload">搜索</button>
+
+    <button class="layui-btn" type="button" id="addBtn" shiro:hasPermission="user:add">新增</button>
+    <input type="hidden" name="ids" id="ids">
+
+</div>
+<table class="layui-hide" id="test" lay-filter="test"></table>
+
+<script type="text/html" id="toolbarDemo">
+
+</script>
+<script type="text/html" id="ZT">
+    <input type="checkbox" name="zt" data-id="{{d.id}}" value="{{d.id}}" lay-skin="switch" lay-filter="switchTest" lay-text="开启|关闭" {{d.zt==1?"checked":""}}>
+
+</script>
+<script id="barDemo" type="text/html">
+
+    <a class="layui-btn layui-btn-xs" lay-event="edit" id="editBtn" shiro:hasPermission="user:edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del" id="delBtn" shiro:hasPermission="user:del">删除</a>
+
+</script>
+<script src="/layui1/layui.js" charset="utf-8" th:inline="none"></script>
+<script src="/js/my/ztree-menu.js"></script>
+<script src="/js/my/ztree-permission.js"></script>
+<script src="/ztree/jquery.ztree.all.min.js"></script>
+<script th:inline="none">
+    layui.config({
+        dir:'layui/'
+    }).use(['table','form'], function() {
+        var table = layui.table;
+        var form = layui.form;
+        table.render({
+            elem: '#test'
+            , url: '/listData'
+            ,toolbar: '#toolbarDemo'
+            , title: '用户数据表'
+            , limit: 10
+
+            , cols: [[
+                {type: 'checkbox', fixed: 'left'}
+                , {field: 'id', title: 'ID', width: 80, fixed: 'left'}
+                , {field: 'username', title: '用户名', width: 120}
+                , {field: 'nickname', title: '昵称', width: 120}
+                , {field: 'sex', title: '性别', width: 80, sort: true}
+                , {field: 'telephone', title: '手机号码', width: 150, sort: true}
+                , {field: 'birthday', title: '生日', width: 150}
+                , {field: 'address', title: '地址',width: 150}
+                , {field: 'hobby', title: '爱好',width: 200}
+                , {field: 'zt',title:'状态',align:'center',templet:"#ZT"}
+                /*{
+                    field: 'zt',
+                    title: '状态',
+                    align: 'center',
+                    templet: function (d) {
+                        var state = "";
+                        if (d.zt == "1") {
+                            state = "<input type='checkbox'  value='" + d.id + "' id='status' lay-filter='stat'  checked='checked' name='status'  lay-skin='switch' lay-text='开启|关闭' onclick='end()' >";
+                        } else {
+                            state = "<input type='checkbox'  value='" + d.id + "' id='status' lay-filter='stat'  name='status'  lay-skin='switch' lay-text='开启|关闭' onclick='end()' >";
+
+                        }
+                        return state;
+                    }
+                }*/
+                , {fixed: 'right', title: '操作', toolbar: '#barDemo', width: 150}
+            ]],
+            id: 'testReload'
+            , page: true
+        });
+        form.on('switch(switchTest)', function(data){
+           /* var id = $(this).attr(data-id);*/
+            var id = data.value;
+            var data = this.checked?"1":"0";
+
+                $.ajax({
+                    url:"users/end",
+                    type:"POST",
+                    data:{"zt":data,"id":id},
+                    dataType: "json",
+                    success: function (data) {
+                        if(data.code==0){
+                            layer.msg(data.msg, {shift: -1, time: 1000}, function () {
+                                /*window.location.reload();*/
+                            });
+                        }
+                    }
+                })
+        });
+
+        /*form.on('switch(stat)', function(obj){
+            var data = obj.data;
+            alert(data)
+            $.ajax({
+                url:"users/end",
+                type:"POST",
+                data:{"data":data},
+                dataType: "json",
+                success: function (data) {
+                    if(data.code==0){
+                        layer.msg(data.msg, {shift: -1, time: 1000}, function () {
+                            window.location.reload();
+                        });
+                    }
+                }
+            })
+        });*/
+        /*function end(obj) {
+            var data = obj.data;
+            var name = data.username;
+            $.ajax({
+               url:"users/end",
+                type:"POST",
+                data:{"data":data},
+                dataType: "json",
+                success: function (data) {
+                   if(data.code==0){
+                       layer.msg(data.msg, {shift: -1, time: 1000}, function () {
+                           window.location.reload();
+                       });
+                   }
+                }
+            })
+        }*/
+        var $ = layui.$;
+        $('.demoTable .layui-btn').on('click', function () {
+            var demoReload = $('#demoReload');
+            //执行重载
+            table.reload('testReload', {
+                page: {
+                    curr: 1 //重新从第 1 页开始
+                }
+                , where: {
+                    id: demoReload.val()
+                }
+            });
+        });
+        table.on('tool(test)', function (obj) {
+            var data = obj.data;
+            var name = data.username;
+            if (obj.event === 'del') {
+                layer.confirm('确定要删除吗？', {
+                    btn : [ '确定', '取消' ]
+                },function(){
+                $.ajax({
+                    url: "/users/del",
+                    type: "POST",
+                    data: {"id": data.id, "memthodname": "deleteuv", "username": data.username},
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.code == 0) {
+                            //删除这一行
+                                obj.del();
+                            //关闭弹框
+                            layer.msg(data.msg, {shift: -1, time: 1000}, function () {
+                                window.location.reload();
+                            });
+                        }
+                    }
+                });
+                },function () {
+                    layer.close();
+                });
+            } else if (obj.event === 'edit') {
+                    EidtUv(data, obj);
+                }
+            });
+        function  EidtUv(data,obj) {
+            $("#id1").val(data.id);
+            $("#username1").val(data.username);
+            /*$("#password1").val(data.password);*/
+            $("#nickname1").val(data.nickname);
+            $("#telephone1").val(data.telephone);
+            $("#sex1").val(data.sex);
+            if(data.address != null && data.address != ""){
+            var province = data.address.split('-')[0];
+            var city = data.address.split('-')[1];
+            var dis = data.address.split('-')[2];
+            var $option1 = $("<option value='"+province+"'>"+province+"</option>");
+            var $option2 = $("<option value='"+city+"'>"+city+"</option>");
+            var $option3 = $("<option value='"+dis+"'>"+dis+"</option>");
+            $("#province").append($option1);
+            $("#city").append($option2);
+            $("#district").append($option3);
+            $("#phidden").val(province);
+            $("#chidden").val(city);
+            $("#dhidden").val(dis);
+            }else{
+                $('#province').html("<option value=''>-- 请选择省 --</option>");
+                $("#city").html("<option value=''>-- 请选择市 --</option>");
+                $("#district").html("<option value=''>-- 请选择区/县 --</option>");
+            }
+            $("#birthday1").val(data.birthday);
+            initMenuDatas(data.id);
+            initMenuDatas2(data.id);
+            layer.open({
+                title:'修改用户',
+                type:1,
+                shade:false,
+                area:['600px','600px'],
+                content:$("#form1")
+            });
+        }
+        $("#addBtn").click(function () {
+            layer.open({
+                type: 2,
+                area: ['600px', '400px'],
+                content: '/add'
+            });
+        })
+        $("#deleteBtn").click(function () {
+            var checkStatus = table.checkStatus();
+
+        })
+
+    });
+    layui.use(['layer','laydate','jquery'], function(){
+        var layer = layui.layer;
+        var laydate = layui.laydate;
+        var $ = layui.jquery;
+        laydate.render({
+            elem: '#birthday1'
+            ,trigger: 'click'
+        });
+
+    });
+    function add() {
+        var bootstrapValidator = $("#form1").data('bootstrapValidator');
+        bootstrapValidator.validate();
+        if(!bootstrapValidator.isValid()){
+            return;
+        }
+        var formdata = $("#form1").serializeObject();
+        formdata.hobbyIds = getCheckedMenuIds();
+        formdata.permissionIds = getCheckedMenuIds2();
+        $.ajax({
+            type : 'post',
+            url : '/users/edit',
+            contentType: "application/json; charset=utf-8",
+            data : JSON.stringify(formdata),
+            success : function(data) {
+                layer.msg(data.msg, {shift: -1, time: 1000}, function(){
+                    window.location.reload();
+                });
+            }
+        });
+    }
+function on(){
+    $(function(){
+        $.ajax({
+            type:"POST",
+            url:"/users/getByPid",
+            data:{"pid":0},
+            dataType:"json",
+            success:function(data){
+                for(var i=0;i<data.length;i++){
+                    var $option = $("<option value='"+data[i].id+"'>"+data[i].name+"</option>");
+                    $("#province").append($option);
+                }
+            }
+        });
+    });
+    }
+    function changeCity(){
+        //当省的内容发生变化的时候，响应的改变省的隐藏域的值
+        $("#phidden").val($("#province option:selected").html());
+        //页面加载完成，将省的信息加载完成
+        //下拉列表框标签对象的val()方法就是选中的option标签的value的属性值
+        var pid = $("#province").val();
+        $.ajax({
+            url:"/users/getByPid",
+            data:{"pid":pid},
+            dataType:"json",
+            success:function(data){
+                //清空城市下拉列表框的内容
+                $("#city").html("<option value=''>-- 请选择市 --</option>");
+                $("#district").html("<option value=''>-- 请选择区/县 --</option>");
+                //遍历json，json数组中每一个json，都对应一个省的信息，都应该在省的下拉列表框下面添加一个<option>
+                for(var i=0;i<data.length;i++){
+                    var $option = $("<option value='"+data[i].id+"'>"+data[i].name+"</option>");
+                    $("#city").append($option);
+                }
+            }
+        });
+    }
+    function changeDistrict(){
+        //当城市的内容发生变化的时候，相应的改变城市的隐藏域的值
+        $("#chidden").val($("#city option:selected").html());
+        //页面加载完成，将省的信息加载完成
+        //下拉列表框标签对象的val()方法就是选中的option标签的value的属性值
+        var pid = $("#city").val();
+        $.ajax({
+            url:"/users/getByPid",
+            data:{"pid":pid},
+            dataType:"json",
+            success:function(data){
+                //清空城市下拉列表框的内容
+                $("#district").html("<option value=''>-- 请选择区/县 --</option>");
+                for(var i=0;i<data.length;i++){
+                    var $option = $("<option value='"+data[i].id+"'>"+data[i].name+"</option>");
+                    $("#district").append($option);
+                }
+            }
+        });
+    }
+    function changeDhiddenValue(){
+        //当城市的内容发生变化的时候，相应的改变城市的隐藏域的值
+        $("#dhidden").val($("#district option:selected").html());
+    }
+    $.fn.zTree.init($('#hobbyTree'),getSetting(),getMenuTree());
+    $.fn.zTree.init($('#powerTree'),getSetting2(),getPermissionTree());
+
+</script>
+</body>
+</html>

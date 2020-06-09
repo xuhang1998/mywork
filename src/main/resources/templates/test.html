@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form id="form">
+    <div>
+        <span>邮件</span><input name="email" type="text">
+    </div>
+</form>
+<script type="text/javascript" src="/js/libs/jquery-2.1.1.min.js"></script>
+<script type="text/javascript" src="js/plugin/jquery-validate/jquery.validate.min.js"></script>
+</body>
+<script>
+    $("#form").validate({
+        onkeyup:false,
+        rules:{
+            email:{
+                email:true
+            }
+        },
+        messages:{
+            email:'格式错误'
+        },
+        focusCleanup: true
+    });
+</script>
+</html>

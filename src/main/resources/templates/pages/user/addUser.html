@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" media="screen" href="/css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" media="screen" href="/layui1/css/layui.css">
+	<link rel="stylesheet" href="/ztree/css/zTreeStyle/zTreeStyle.css">
+
+</head>
+<body>
+<style>
+	.form-control{
+		width: 80%;
+	}
+	label#email-error.error{
+		color:red;
+		font-size: small;
+	}
+	label#telephone-error.error{
+		color:red;
+		font-size: small;
+
+	}
+</style>
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+	<form class="form-horizontal" onsubmit="return false" id="form">
+		<fieldset>
+            <div class="form-group">
+                <label class="col-md-2 control-label">ID</label>
+                <div class="col-md-10">
+                    <input class="form-control" placeholder="id" type="number" name="id"
+                           data-bv-notempty="true"
+                           data-bv-notempty-message="ID 不能为空">
+                </div>
+            </div>
+			<div class="form-group">
+				<label class="col-md-2 control-label">用户名</label>
+				<div class="col-md-10">
+					<input class="form-control" placeholder="用户名" type="text" name="username"
+						data-bv-notempty="true"
+						data-bv-notempty-message="用户名 不能为空">
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label class="col-md-2 control-label">密码</label>
+				<div class="col-md-10">
+					<input class="form-control" placeholder="密码" type="text" name="password"
+						data-bv-notempty="true"
+						data-bv-notempty-message="密码 不能为空">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-2 control-label">昵称</label>
+				<div class="col-md-10">
+					<input class="form-control" placeholder="昵称" type="text" name="nickname">
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label class="col-md-2 control-label">电话</label>
+				<div class="col-md-10">
+					<input class="form-control" placeholder="电话" type="text" name="telephone" maxlength="11" id="telephone" isPhone required>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-2 control-label">邮箱</label>
+				<div class="col-md-10">
+					<input class="form-control" placeholder="邮箱" type="text" name="email">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-2 control-label">生日</label>
+				<div class="col-md-10" style="width: 200px">
+				  <input type="text" class="form-control" placeholder="生日" id="birthday" name='birthday'>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label class="col-md-2 control-label">住址</label>
+				<div class="layui-input-inline">
+					<select name="province" id="province" onchange="changeCity()">
+						<option value="">请选择省</option>
+
+					</select>
+				</div>
+				<div class="layui-input-inline">
+					<select name="city" id="city" onchange="changeDistrict()">
+						<option value="">请选择市</option>
+
+					</select>
+				</div>
+				<div class="layui-input-inline">
+					<select id="district" name="district" onchange="changeDhiddenValue()">
+						<option value="">请选择县/区</option>
+
+					</select>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label class="col-md-2 control-label">爱好</label>
+				<div class="col-md-10">
+					<ul id="hobbyTree" class="ztree"></ul>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label class="col-md-2 control-label">权限</label>
+				<div class="col-md-10">
+					<ul id="powerTree" class="ztree"></ul>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label class="col-md-2 control-label">性别</label>
+				<div class="col-md-10" style="width: 100px">
+					<select class="form-control input-sm" name="sex" id="sex">
+						<option value="男">男</option>
+						<option value="女">女</option>
+					</select>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label class="col-md-2 control-label">状态</label>
+				<div class="col-md-10" style="width: 200px">
+					<select class="form-control input-sm" name="zt" id="zt">
+						<option value="1">开启</option>
+						<option value="0">关闭</option>
+					</select>
+				</div>
+			</div>
+			<input type="hidden" name="phidden" id="phidden">
+			<input type="hidden" name="chidden" id="chidden">
+			<input type="hidden" name="dhidden" id="dhidden">
+			<div class="form-actions">
+				<div class="row" align="center">
+					<div class="col-md-12">
+<!--
+					    <button class="btn btn-primary" onclick="location.href='admin'">返回</button>
+-->
+						<button class="btn btn-primary" type="submit" onclick="add()">
+							<i class="fa fa-save"></i> 保存
+						</button>
+					</div>
+				</div>
+			</div>
+
+		</fieldset>
+	</form>
+</div>
+	<script type="text/javascript" src="/js/libs/jquery-2.1.1.min.js"></script>
+    <script type="text/javascript" src="/js/plugin/jquery-validate/jquery.validate.min.js"></script>
+    <script type="text/javascript" src="/js/plugin/jquery-validate/jquery.validate.extend.js"></script>
+	<script type="text/javascript" src="/js/common.js"></script>
+	<script type="text/javascript" src="/layui1/layui.js"></script>
+    <script src="/js/my/ztree-menu.js"></script>
+    <script src="/js/my/ztree-permission.js"></script>
+    <script type="text/javascript" src="/js/libs/jquery.ztree.all-3.5.min.js"></script>
+    <script type="text/javascript" src="/js/ry-ui.js"></script>
+	<script type="text/javascript">
+		layui.use(['layer','laydate','jquery'], function(){
+		    var layer = layui.layer;
+		    var laydate = layui.laydate;
+		    var $ = layui.jquery;
+		    laydate.render({
+	           elem: '#birthday'
+				,trigger: 'click'
+	        });
+		});
+		//手机号码验证身份证正则合并：(^\d{15}$)|(^\d{17}([0-9]|X)$)
+		jQuery.validator.addMethod("isPhone",function(value,element){
+			var length = value.length;
+			var phone=/^1[3|4|5|6|7|8|9][0-9]\d{8}$/;
+			return this.optional(element)||(length == 11 && phone.test(value));
+		},"请填写正确的11位手机号");
+		// $('#form').bootstrapValidator();
+		$("#form").validate({
+			onkeyup:false,
+			rules:{
+				email:{
+					email:true
+				},
+				telephone:{
+					isPhone:true,
+					remote: {
+						url: "/users/checkPhone",
+						type: "post",
+						dataType: "json",
+						data: {
+							name: function () {
+								return $.common.trim($("#telephone").val());
+							}
+						},
+						dataFilter: function (data, type) {
+
+							if(data == "1"){
+								return false;
+							}else{
+								return true;
+							}
+						}
+					}
+				}
+			},
+			messages:{
+				email:'邮箱格式错误',
+				"telephone":{
+					remote: "手机号码已经存在"
+				}
+			},
+			focusCleanup: true
+		});
+		function add() {
+
+			if(!($("#form").valid())){
+				return;
+			}
+
+		    var formdata = $("#form").serializeObject();
+			formdata.hobbyIds = getCheckedMenuIds();
+			formdata.permissionIds = getCheckedMenuIds2();
+			$.ajax({
+				type : 'post',
+				url : '/users/add',
+				contentType: "application/json; charset=utf-8",  
+				data : JSON.stringify(formdata),
+				success : function(data) {
+				    if(data.code == 0){
+					layer.msg(data.msg, {shift: -1, time: 1000}, function(){
+                       /* var index = parent.layer.getFrameIndex(window.name);
+                        parent.layer.close(index);关闭当前页但是不会刷新页面*/
+                        parent.window.location.reload();
+                    });
+				    }else{
+                        layer.msg(data.msg, {shift: -1, time: 1000}, function(){
+                            window.location.reload();
+                        });
+                    }
+				}
+			});
+		}
+
+		$(function(){
+			$.ajax({
+				type:"POST",
+				url:"/users/getByPid",
+				data:{"pid":0},
+				dataType:"json",
+				success:function(data){
+					for(var i=0;i<data.length;i++){
+						var $option = $("<option value='"+data[i].id+"'>"+data[i].name+"</option>");
+						$("#province").append($option);
+					}
+				}
+			});
+		});
+		function changeCity(){
+			//当省的内容发生变化的时候，响应的改变省的隐藏域的值
+			$("#phidden").val($("#province option:selected").html());
+			//页面加载完成，将省的信息加载完成
+			//下拉列表框标签对象的val()方法就是选中的option标签的value的属性值
+			var pid = $("#province").val();
+			$.ajax({
+				url:"/users/getByPid",
+				data:{"pid":pid},
+				dataType:"json",
+				success:function(data){
+					//清空城市下拉列表框的内容
+					$("#city").html("<option value=''>-- 请选择市 --</option>");
+					$("#district").html("<option value=''>-- 请选择区/县 --</option>");
+					//遍历json，json数组中每一个json，都对应一个省的信息，都应该在省的下拉列表框下面添加一个<option>
+					for(var i=0;i<data.length;i++){
+						var $option = $("<option value='"+data[i].id+"'>"+data[i].name+"</option>");
+						$("#city").append($option);
+					}
+				}
+			});
+		}
+		function changeDistrict(){
+			//当城市的内容发生变化的时候，相应的改变城市的隐藏域的值
+			$("#chidden").val($("#city option:selected").html());
+			//页面加载完成，将省的信息加载完成
+			//下拉列表框标签对象的val()方法就是选中的option标签的value的属性值
+			var pid = $("#city").val();
+			$.ajax({
+				url:"/users/getByPid",
+				data:{"pid":pid},
+				dataType:"json",
+				success:function(data){
+					//清空城市下拉列表框的内容
+					$("#district").html("<option value=''>-- 请选择区/县 --</option>");
+					for(var i=0;i<data.length;i++){
+						var $option = $("<option value='"+data[i].id+"'>"+data[i].name+"</option>");
+						$("#district").append($option);
+					}
+				}
+			});
+		}
+		function changeDhiddenValue(){
+			//当城市的内容发生变化的时候，相应的改变城市的隐藏域的值
+			$("#dhidden").val($("#district option:selected").html());
+		}
+		function getCheckedMenuIds2(){
+			var treeObj = $.fn.zTree.getZTreeObj("powerTree");
+			var nodes = treeObj.getCheckedNodes(true);
+			var length = nodes.length;
+			var ids = [];
+			for(var i=0; i<length; i++){
+				var n = nodes[i];
+				var id = n['id'];
+				ids.push(id);
+			}
+			return ids;
+		}
+		$.fn.zTree.init($('#hobbyTree'),getSetting(),getMenuTree());
+		$.fn.zTree.init($('#powerTree'),getSetting2(),getPermissionTree());
+	</script>
+</body>
+</html>
