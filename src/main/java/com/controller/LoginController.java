@@ -132,14 +132,7 @@ public class LoginController extends ApiController {
     public String updateImage(){
         return "updateImage";
     }
-    @RequestMapping("/hello")
-    public String hello(Model model) {
 
-
-        String user = "99999";
-        model.addAttribute("name",user);
-        return "hello";
-    }
 
     @GetMapping("/dashboard")
     public String pd(){
