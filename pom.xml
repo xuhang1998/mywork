@@ -20,7 +20,9 @@
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
         <!-- spring boot web 启动器-->
-
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId></dependency>
         <!-- spring boot test 启动器-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
