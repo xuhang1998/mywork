@@ -1,11 +1,16 @@
 package com.config;
 
 import at.pollux.thymeleaf.shiro.dialect.ShiroDialect;
+import com.service.impl.RedisSession;
+import org.apache.shiro.codec.Base64;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
+import org.apache.shiro.web.mgt.CookieRememberMeManager;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
+import org.apache.shiro.web.servlet.SimpleCookie;
+import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +31,7 @@ public class ShiroConfig {
       * anon ：无需认证（登录）可访问
       * authc : 要认证（登录）才可访问
       * */
+      filterMap.put("/code","anon");
       filterMap.put("/admin","authc");
       filterMap.put("/updateMyself","authc");
       filterMap.put("/updateImage","authc");
@@ -39,11 +45,60 @@ public class ShiroConfig {
       shiroFilterFactoryBean.setFilterChainDefinitionMap(filterMap);
       return shiroFilterFactoryBean;
 }
-    @Bean("security")
+    @Bean
+    public RedisSession getRedisSessionDao(){
+        return new RedisSession();
+    }
+    @Bean(name="sessionManager")
+    public DefaultWebSessionManager defaultWebSessionManager() {
+        DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
+        //sessionManager.setCacheManager(cacheManager());
+        sessionManager.setGlobalSessionTimeout(43200000); //12小时
+        sessionManager.setDeleteInvalidSessions(true);
+        //关键在这里
+        sessionManager.setSessionDAO(getRedisSessionDao());
+        sessionManager.setSessionValidationSchedulerEnabled(true);
+        sessionManager.setDeleteInvalidSessions(true);
+        sessionManager.setSessionIdCookie(getSessionIdCookie());
+
+        return sessionManager;
+    }
+    /**
+     * 记住我
+     */
+    public CookieRememberMeManager rememberMeManager()
+    {
+        CookieRememberMeManager cookieRememberMeManager = new CookieRememberMeManager();
+        cookieRememberMeManager.setCookie(rememberMeCookie());
+        cookieRememberMeManager.setCipherKey(Base64.decode("fCq+/xW488hMTCD+cmJ3aQ=="));
+        return cookieRememberMeManager;
+    }
+    /**
+     * cookie 属性设置
+     */
+    public SimpleCookie rememberMeCookie()
+    {
+        SimpleCookie cookie = new SimpleCookie("rememberMe");
+        cookie.setDomain("");
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(30 * 24 * 60 * 60);
+        return cookie;
+    }
+   @Bean("security")
     public DefaultWebSecurityManager getSecurityManager(@Qualifier("UserRealm") UserRealm userRealm){
         DefaultWebSecurityManager defaultWebSecurityManager = new DefaultWebSecurityManager();
         defaultWebSecurityManager.setRealm(userRealm);
+       // 记住我
+       defaultWebSecurityManager.setRememberMeManager(rememberMeManager());
+       defaultWebSecurityManager.setSessionManager(defaultWebSessionManager());
         return defaultWebSecurityManager;
+    }
+    @Bean(name="sessionIdCookie")
+    public SimpleCookie getSessionIdCookie(){
+        SimpleCookie simpleCookie = new SimpleCookie("jessionId");
+
+        return simpleCookie;
     }
     @Bean("UserRealm")
     public UserRealm getRealm(){
@@ -59,7 +114,7 @@ public class ShiroConfig {
      * @return
      */
     @Bean
-    public LifecycleBeanPostProcessor lifecycleBeanPostProcessor() {
+    public static LifecycleBeanPostProcessor lifecycleBeanPostProcessor() {
         return new LifecycleBeanPostProcessor();
     }
     /**

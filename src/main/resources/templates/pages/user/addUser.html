@@ -82,6 +82,7 @@
 					<select name="province" id="province" onchange="changeCity()">
 						<option value="">请选择省</option>
 
+
 					</select>
 				</div>
 				<div class="layui-input-inline">
@@ -217,7 +218,6 @@
 			if(!($("#form").valid())){
 				return;
 			}
-
 		    var formdata = $("#form").serializeObject();
 			formdata.hobbyIds = getCheckedMenuIds();
 			formdata.permissionIds = getCheckedMenuIds2();

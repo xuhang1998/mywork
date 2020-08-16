@@ -66,7 +66,7 @@
         <div class="form-group">
             <label class="col-md-2 control-label">住址</label>
             <div class="layui-input-inline">
-                <select name="province" id="province" onchange="changeCity()" onfocus="on()">
+                <select name="province" id="province" onchange="changeCity()">
 
                 </select>
             </div>
@@ -140,8 +140,8 @@
 </script>
 <script type="text/html" id="ZT">
     <input type="checkbox" name="zt" data-id="{{d.id}}" value="{{d.id}}" lay-skin="switch" lay-filter="switchTest" lay-text="开启|关闭" {{d.zt==1?"checked":""}}>
-
 </script>
+
 <script id="barDemo" type="text/html">
 
     <a class="layui-btn layui-btn-xs" lay-event="edit" id="editBtn" shiro:hasPermission="user:edit">编辑</a>
@@ -152,7 +152,14 @@
 <script src="/js/my/ztree-menu.js"></script>
 <script src="/js/my/ztree-permission.js"></script>
 <script src="/ztree/jquery.ztree.all.min.js"></script>
+<script type="text/javascript" src="/js/plugin/jquery-validate/jquery.validate.min.js"></script>
+<script type="text/javascript" src="/js/plugin/jquery-validate/jquery.validate.extend.js"></script>
+
 <script th:inline="none">
+    var pro = window.location.protocol;
+    var host = window.location.host;
+    var domain = pro + "//" + host;
+    var src = domain +"/phone/";
     layui.config({
         dir:'layui/'
     }).use(['table','form'], function() {
@@ -164,7 +171,6 @@
             ,toolbar: '#toolbarDemo'
             , title: '用户数据表'
             , limit: 10
-
             , cols: [[
                 {type: 'checkbox', fixed: 'left'}
                 , {field: 'id', title: 'ID', width: 80, fixed: 'left'}
@@ -175,6 +181,24 @@
                 , {field: 'birthday', title: '生日', width: 150}
                 , {field: 'address', title: '地址',width: 150}
                 , {field: 'hobby', title: '爱好',width: 200}
+                /*, {field: 'headImage',
+                    title: '头像',
+                    align: 'center',
+                    templet : function (d) {
+                        var img = "";
+                        if(d.headImage != null && d.headImage != ""){
+                            i = src + d.headImage;
+
+                           img = '<div><img src={i}></div>'
+                        }else{
+                            img = "";
+
+                        }
+                        return img;
+                    }
+
+
+                }*/
                 , {field: 'zt',title:'状态',align:'center',templet:"#ZT"}
                 /*{
                     field: 'zt',
@@ -296,7 +320,6 @@
         function  EidtUv(data,obj) {
             $("#id1").val(data.id);
             $("#username1").val(data.username);
-            /*$("#password1").val(data.password);*/
             $("#nickname1").val(data.nickname);
             $("#telephone1").val(data.telephone);
             $("#sex1").val(data.sex);
@@ -310,9 +333,11 @@
             $("#province").append($option1);
             $("#city").append($option2);
             $("#district").append($option3);
+
             $("#phidden").val(province);
             $("#chidden").val(city);
             $("#dhidden").val(dis);
+
             }else{
                 $('#province').html("<option value=''>-- 请选择省 --</option>");
                 $("#city").html("<option value=''>-- 请选择市 --</option>");
@@ -326,6 +351,7 @@
                 type:1,
                 shade:false,
                 area:['600px','600px'],
+                callback:on(),
                 content:$("#form1")
             });
         }
@@ -352,10 +378,46 @@
         });
 
     });
+
+    /*$("#form").validate({
+        onkeyup:false,
+        rules:{
+            email:{
+                email:true
+            },
+            telephone:{
+                isPhone:true,
+                remote: {
+                    url: "/users/checkPhone",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        name: function () {
+                            return $.common.trim($("#telephone").val());
+                        }
+                    },
+                    dataFilter: function (data, type) {
+
+                        if(data == "1"){
+                            return false;
+                        }else{
+                            return true;
+                        }
+                    }
+                }
+            }
+        },
+        messages:{
+            email:'邮箱格式错误',
+            "telephone":{
+                remote: "手机号码已经存在"
+            }
+        },
+        focusCleanup: true
+    });*/
+
     function add() {
-        var bootstrapValidator = $("#form1").data('bootstrapValidator');
-        bootstrapValidator.validate();
-        if(!bootstrapValidator.isValid()){
+        if(!($("#form1").valid())){
             return;
         }
         var formdata = $("#form1").serializeObject();
@@ -373,22 +435,26 @@
             }
         });
     }
+
 function on(){
-    $(function(){
-        $.ajax({
+
+    $.ajax({
             type:"POST",
             url:"/users/getByPid",
             data:{"pid":0},
             dataType:"json",
             success:function(data){
+
                 for(var i=0;i<data.length;i++){
                     var $option = $("<option value='"+data[i].id+"'>"+data[i].name+"</option>");
                     $("#province").append($option);
                 }
+
             }
         });
-    });
+
     }
+
     function changeCity(){
         //当省的内容发生变化的时候，响应的改变省的隐藏域的值
         $("#phidden").val($("#province option:selected").html());

@@ -9,7 +9,7 @@ import java.util.Date;
 
 @Data
 public class User extends Model<User> implements Serializable {
-
+    private final static long serialVersionUID = 1L;
     private Integer id;
     private String username;
     private String password;

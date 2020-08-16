@@ -21,4 +21,5 @@ public interface UserConstants {
 	String LOGIN_TOKEN = "login-token";
 	String salt = new SecureRandomNumberGenerator().nextBytes().toString();
 
+
 }

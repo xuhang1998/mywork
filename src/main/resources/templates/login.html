@@ -13,6 +13,9 @@
     .pointer{cursor: pointer;
     display:inline-block;vertical-align:middle;
     }
+    #rememberme{cursor: pointer;
+        display:inline-block;vertical-align:middle;
+    }
     .refresh{
         font-size:14px;
     }
@@ -33,6 +36,9 @@
             &nbsp;&nbsp;&nbsp;&nbsp;<a class="refresh" href="javascript:;" @click="refreshCode" >点击刷新</a>
         </div>
         <hr class="hr15">
+       <!-- <div class="checkbox-custom" th:classappend="${captchaEnabled==false} ? 'm-t'">
+            <input type="checkbox" id="rememberme" name="rememberme"><label for="rememberme">记住我</label>
+        </div>-->
         <button style="width: 100%;" type="submit" onclick="login(this)">登录</button>
         <hr class="hr20">
         <span id="info" style="color: red"></span>
@@ -65,7 +71,7 @@
         var username = $.trim($('#username').val());
         var password = $.trim($('#password').val());
         var validateCode = $.trim($('#validateCode').val());
-
+        var rememberMe = $("input[name='rememberme']").is(':checked');
         if (username == "" || password == "" || code == "") {
             $("#info").html('用户名密码或者验证码不能为空');
             $(obj).attr("disabled", false);
@@ -79,9 +85,9 @@
                 data : {
                     "username" : username,
                     "password" : password,
-                    "validateCode" : validateCode
+                    "validateCode" : validateCode,
+                    "rememberMe" : rememberMe
                 },
-
                 success : function(r){
                     if(r.code == 0){
                     location.href = '/admin';

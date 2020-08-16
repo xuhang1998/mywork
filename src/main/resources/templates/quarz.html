@@ -228,8 +228,6 @@
         //获取这条命数据的id
         var id = rows.id;
         }
-
-
             layer.open({
                 type: 2,
                 area: ["800px", "400px"],
@@ -244,11 +242,10 @@
 
             });
         }
-
+//根据条件搜索
      function serch() {
          serchTable("bootstrap-table","quarz-form");
     }
-
         var serchTable = function(bt,qf){
          var params = $("#"+bt).bootstrapTable('getOptions');
          params.queryParams = function(params){

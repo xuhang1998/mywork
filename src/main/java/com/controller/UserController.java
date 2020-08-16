@@ -10,16 +10,20 @@ import com.dao.user_hobbyDao;
 import com.dto.UserDto;
 import com.entity.*;
 import com.service.UserService;
+/*
 import com.sun.xml.internal.bind.v2.model.core.ID;
+*/
 import com.utils.R;
 import com.utils.UserUtil;
 import net.minidev.json.JSONArray;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.shiro.session.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.thymeleaf.expression.Ids;
@@ -35,7 +39,8 @@ public class UserController {
 
 	private static final Logger log = LoggerFactory.getLogger("adminLogger");
 
-
+	@Autowired
+	private RedisTemplate redisTemplate;
 	@Autowired
 	private UserService userService;
 	@Resource
@@ -133,14 +138,13 @@ public class UserController {
 	}
 
 	@PutMapping
-	@RequiresPermissions("sys:user:add")
+	@RequiresPermissions("sys:user:update")
 	public int updateUser(@RequestBody User user) {
 		return userService.updateUser(user);
 	}
 
 	@GetMapping("/current")
 	public User currentUser() {
-		System.out.println(((User)SecurityUtils.getSubject().getPrincipal()).toString());
 		return (User)SecurityUtils.getSubject().getPrincipal();
 	}
 	private String ret(Model model, String view) {

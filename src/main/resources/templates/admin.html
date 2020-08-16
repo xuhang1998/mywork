@@ -1,7 +1,7 @@
 
 
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -18,20 +18,19 @@
         height: 40px;
         border-radius: 100%;
     }
-    #ej{
-        display: none;
-    }
+
 </style>
 
 <body class="layui-layout-body">
 <div class="layui-layout layui-layout-admin">
-    <div class="layui-header">
+    <div class="layui-header" style="background-color: #333333">
         <div class="layui-logo">用户权限管理系统</div>
         <ul class="layui-nav layui-layout-right" >
             <li class="layui-nav-item" pc>
                 <a href="javascript:;" class="admin-header-user">
                     <img />
-                    <span></span>
+                    <span style="background-color: #00FF00"></span>
+
                 </a>
                 <dl class="layui-nav-child">
                     <dd>
@@ -47,8 +46,8 @@
             </li>
         </ul>
     </div>
-    <div class="layui-side layui-bg-black">
-        <div class="layui-side-scroll">
+    <div class="layui-side layui-bg-black" >
+        <div class="layui-side-scroll" style="width: 200px">
             <ul class="layui-nav layui-nav-tree"  lay-filter="test">
                 <li class="layui-nav-item layui-nav-itemed">
                 <li class="layui-nav-item"><a href="javascript:;">基本功能</a> <dl class="layui-nav-child">
@@ -71,31 +70,23 @@ glyphicon glyphicon-asterisk"></span>  基本资料</a></li>
             </ul>
         </div>
     </div>
+
     <div class="layui-body">
         <!-- 内容主体区域 -->
-        <iframe style="padding:10px 0px 10px 10px;WIDTH: 100%;height:90%;overflow:hidden" id="content" src="/updateMyself" ></iframe>
+        <iframe style="padding:10px 0px 10px 10px;WIDTH: 100%;height:90%;overflow:hidden;" id="content" src="/updateMyself" ></iframe>
     </div>
     <div class="layui-footer">
+
+        <div id="timeShow" class="time1" style="float: right;margin-top: 50px"></div>
+
     </div>
 </div>
 <script src="/layui1/layui.js"></script>
 <script type="text/javascript" src="/js/libs/jquery-2.1.1.min.js"></script>
 <link rel="stylesheet" href="/css/bootstrap.min.css">
 <script type="text/javascript" src="/js/bootstrap/bootstrap.min.js"></script>
+<script type="text/javascript" src="/js/common.js"></script>
 <script>
-    function f(str){
-        var sub_menu = document.getElementById(str);
-        var dis_v = sub_menu.style.display;
-
-        if(dis_v == "block") {
-            sub_menu.style.display = "none";
-            document.getElementById("more").style.display = "none";
-        }else{
-            sub_menu.style.display = "block";
-        document.getElementById("more").style.display = "block";}
-
-    }
-
     initData();
     function initData(){
         $.ajax({
@@ -116,7 +107,6 @@ glyphicon glyphicon-asterisk"></span>  基本资料</a></li>
                     } else {
                         url = "/img/avatars/1.png";
                     }
-
                     url = domain + url;
                 } else {
                     url = domain + "/phone/" + url;
@@ -136,7 +126,26 @@ glyphicon glyphicon-asterisk"></span>  基本资料</a></li>
             $("#content").attr("src",url);
         })
     });
-
+    var t = null;
+    t = setTimeout(time,1000);//开始执行
+    function time()
+    {
+        clearTimeout(t);//清除定时器
+        dt = new Date();
+        var y=dt.getYear()+1900;
+        var mm=dt.getMonth()+1;
+        var d=dt.getDate();
+        var weekday=["星期日","星期一","星期二","星期三","星期四","星期五","星期六"];
+        var day=dt.getDay();
+        var h=dt.getHours();
+        var m=dt.getMinutes();
+        var s=dt.getSeconds();
+        if(h<10){h="0"+h;}
+        if(m<10){m="0"+m;}
+        if(s<10){s="0"+s;}
+        document.getElementById("timeShow").innerHTML = y+"/"+mm+"/"+d+""+weekday[day]+":"+h+":"+m+":"+s+"";
+        t = setTimeout(time,1000); //设定定时器，循环执行
+    }
 </script>
 </body>
 </html>

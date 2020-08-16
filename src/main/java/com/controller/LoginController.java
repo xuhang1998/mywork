@@ -7,19 +7,23 @@ import com.baomidou.mybatisplus.extension.api.ApiController;
 
 import com.constants.UserConstants;
 import com.dao.UserDao;
+import com.dto.Token;
 import com.entity.User;
 import com.google.code.kaptcha.Constants;
 import com.google.code.kaptcha.Producer;
+import com.service.TokenManager;
 import com.service.UserService;
 
 import com.utils.PageResult;
 import com.utils.R;
 import com.utils.ShiroUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.security.SecurityUtil;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,12 +31,15 @@ import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
@@ -45,7 +52,7 @@ import java.util.concurrent.TimeUnit;
  * @author makejava
  * @since 2019-11-30 21:23:39
  */
-
+@CrossOrigin
 @Controller
 @RequestMapping
 public class LoginController extends ApiController {
@@ -58,14 +65,18 @@ public class LoginController extends ApiController {
     private UserDao userDao;
     @Autowired
     private ServerProperties serverProperties;
+    /*@Autowired
+    private RedisTemplate<UsernamePasswordToken, Session> redisTemplate;
+    */
     @Autowired
-    private RedisTemplate<String,List<User>> redisTemplate;
+    private TokenManager tokenManager;
 
     @RequestMapping("/login")
     public String login() {
         return "login";
     }
     @RequestMapping("/test")
+    @ResponseBody
     public String test() {
         return "test";
     }
@@ -92,8 +103,11 @@ public class LoginController extends ApiController {
 
     @ResponseBody
     @SysLog("用户登录")
+    @Transactional
     @RequestMapping("/yzlogin")
-    public R yzlogin(String username,String password,String validateCode) {
+    public R yzlogin(String username, String password, String validateCode, HttpServletRequest httpServletRequest,Boolean rememberMe) {
+        /*Session session = SecurityUtils.getSubject().getSession();
+        HttpSession s = httpServletRequest.getSession();*/
         String kaptcha = ShiroUtils.getKaptcha(Constants.KAPTCHA_SESSION_KEY);
         if(!validateCode.equalsIgnoreCase(kaptcha)){
             return R.error("验证码不正确");
@@ -105,10 +119,12 @@ public class LoginController extends ApiController {
             }
             Subject subject = SecurityUtils.getSubject();
             UsernamePasswordToken usernamePasswordToken =
-                    new UsernamePasswordToken(username,userService.passwordEncoder(password,user.getSalt()));
+                    new UsernamePasswordToken(username,userService.passwordEncoder(password,user.getSalt()),rememberMe);
             subject.login(usernamePasswordToken);
             // 设置shiro的session过期时间
+/*
             SecurityUtils.getSubject().getSession().setTimeout(serverProperties.getServlet().getSession().getTimeout().toMillis());
+*/
 
         }catch(UnknownAccountException e){
 
@@ -161,40 +177,32 @@ public class LoginController extends ApiController {
     @RequestMapping("listData")
     @ResponseBody
     public PageResult<User> listData(Integer page,Integer limit,User user){
-        ValueOperations<String,List<User>> operations = redisTemplate.opsForValue();
         PageResult<User> result = new PageResult<>();
         List<User> list;
-        list = operations.get("listDataKey");
-        if(list != null){
-            result.setData(list);
-            QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-            int i = userDao.selectCount(queryWrapper);
-            result.setCount(i);
+        Integer id = user.getId();
+        if(id == null){
+            list = userService.selectAll((page-1)*limit,limit);
         }else{
-           Integer id = user.getId();
-           if(id == null){
-              list = userService.selectAll((page-1)*limit,limit);
-           }else{
-              list = userDao.getById(id);
-           }
-            result.setData(list);
-            QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-            int i = userDao.selectCount(queryWrapper);
-            String key = "listDataKey";
-            operations.set(key, list,100, TimeUnit.SECONDS);
-            result.setCount(i);
+            list = userDao.getById(id);
         }
-
+        result.setData(list);
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        int i = userDao.selectCount(queryWrapper);
+        result.setCount(i);
         return result;
     }
     @SysLog("退出")
     @RequestMapping(value = "logout", method = RequestMethod.GET)
     public String logout() {
         SecurityUtils.getSubject().logout();
+        /*redisTemplate.delete(tokenManager.getToken(UserConstants.LOGIN_TOKEN));
+        tokenManager.deleteToken(UserConstants.LOGIN_TOKEN);*/
+
         return "redirect:login";
     }
     @RequestMapping("/add")
     public String add(){
+
         return "pages/user/addUser";
     }
     @RequestMapping("/edit")

@@ -2,6 +2,7 @@ package com.config;
 import com.constants.UserConstants;
 import com.dao.PermissionDao;
 import com.entity.User;
+import com.service.TokenManager;
 import com.service.UserService;
 import com.utils.SpringUtil;
 import com.utils.UserUtil;
@@ -10,10 +11,13 @@ import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
+import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.util.StringUtils;
 import com.entity.Permission;
 import java.util.List;
@@ -23,6 +27,10 @@ import java.util.stream.Collectors;
 public class UserRealm extends AuthorizingRealm {
     @Autowired
     private UserService userService;
+    /*@Autowired
+    private RedisTemplate<UsernamePasswordToken, Session> redisTemplate;*/
+    @Autowired
+    private TokenManager tokenManager;
 
     @Override
     //验证
@@ -33,11 +41,11 @@ public class UserRealm extends AuthorizingRealm {
         if(user == null){
             return null;//shiro底层会抛出UnknownAccountException
         }
-        SimpleAuthenticationInfo info = new SimpleAuthenticationInfo(
-                user,user.getPassword(), ByteSource.Util.bytes(user.getSalt()),user.getUsername());
 /*
         return new SimpleAuthenticationInfo(user,user.getPassword(), ByteSource.Util.bytes(UserConstants.salt),user.getUsername());
 */
+        SimpleAuthenticationInfo info = new SimpleAuthenticationInfo(
+                user, user.getPassword(), ByteSource.Util.bytes(user.getSalt()), user.getUsername());
         return info;
     }
     @Override
@@ -59,7 +67,7 @@ public class UserRealm extends AuthorizingRealm {
     /**
      * 重写缓存key，否则集群下session共享时，会重复执行doGetAuthorizationInfo权限配置
      */
-    @Override
+   /* @Override
     protected Object getAuthorizationCacheKey(PrincipalCollection principals) {
         SimplePrincipalCollection principalCollection = (SimplePrincipalCollection) principals;
         Object object = principalCollection.getPrimaryPrincipal();
@@ -71,6 +79,6 @@ public class UserRealm extends AuthorizingRealm {
         }
 
         return super.getAuthorizationCacheKey(principals);
-    }
+    }*/
 
 }

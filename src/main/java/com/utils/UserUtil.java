@@ -12,7 +12,7 @@ import java.util.List;
 
 public class UserUtil {
 
-	public static User getCurrentUser() {
+	/*public static User getCurrentUser() {
 		User user = (User) getSession().getAttribute(UserConstants.LOGIN_USER);
 
 		return user;
@@ -27,7 +27,7 @@ public class UserUtil {
 		List<Permission> list = (List<Permission>) getSession().getAttribute(UserConstants.USER_PERMISSIONS);
 
 		return list;
-	}
+	}*/
 
 	public static void setPermissionSession(List<Permission> list) {
 		getSession().setAttribute(UserConstants.USER_PERMISSIONS, list);

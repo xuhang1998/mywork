@@ -58,5 +58,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
 		registry.addResourceHandler("/phone/**")
 				.addResourceLocations(ResourceUtils.FILE_URL_PREFIX + filesPath + File.separator);
 	}
+	/*@Override
+	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+		registry.addResourceHandler("/phone/**")
+				.addResourceLocations("phone:/home/wwwroot/ftptest/d:/phone/");
 
+	}*/
 }
