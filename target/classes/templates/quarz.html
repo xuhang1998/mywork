@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!--<div th:replace="/common/common_css::common_css"></div>-->
+    <link rel="stylesheet" href="/css/ry-ui.css">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="/layui1/css/layui.css">
+    <link rel="stylesheet" type="text/css" href="/css/font-awesome/css/font-awesome.css">
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="quarz-form">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            定时任务名称：<input type="text" name="DSRWMC" id="DSRWMC" style="width: 100px"/>
+                        </li>
+                        <li>
+                            用户名：<input type="text" name="username" id="username" style="width: 100px"/>
+                        </li>
+                        <li>
+                            任务状态：<select name="ZT" id="ZT" style="width: 100px">
+                            <option value="">所有</option>
+                            <option value="1">开启</option>
+                            <option value="0">关闭</option>
+                        </select>
+                        </li>
+                        <li class="select-time">
+                            <label>创建时间： </label>
+                            <input type="text" class="time-input" id="KSRQ" placeholder="开始日期" name="KSRQ" style="width: 200px"/>
+                            <span>-</span>
+                            <input type="text" class="time-input" id="JSRQ" placeholder="结束日期" name="JSRQ" style="width: 200px"/>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" style="border-radius:10px" id="serchBtn" onclick="serch()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" style="border-radius:10px" onclick="$.form.reset('quarz-form')"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" name="toolbar" role="group">
+            <a class="btn btn-success" onclick="add()" >
+                <i class="fa fa-plus"></i> 新增
+            </a>
+            <a class="btn btn-primary single " onclick="edit()">
+                <i class="fa fa-edit"></i> 修改
+            </a>
+            <a class="btn btn-danger multiple disabled" onclick="removeAll()">
+                <i class="fa fa-remove"></i> 删除
+            </a>
+            <a class="btn btn-warning" onclick="$.table.exportExcel()">
+                <i class="fa fa-download"></i> 导出
+            </a>
+        </div>
+
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table" data-mobile-responsive="true"></table>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="/js/libs/jquery-2.1.1.min.js"></script>
+<link rel="stylesheet" href="/css/bootstrap.min.css">
+<script type="text/javascript" src="/js/bootstrap/bootstrap.min.js"></script>
+<script type="text/javascript" src="/js/libs/jquery.treetable.js"></script>
+<script type="text/javascript" src="/js/bootstrap/bootstrap-table.min.js"></script>
+<script type="text/javascript" src="/js/ry-ui.js"></script>
+<script type="text/javascript" src="/js/bootstrap/bootstrap-table-zh-CN.js"></script>
+<script type="text/javascript" src="/layer/layer.min.js"></script>
+<script type="text/javascript" src="/layui1/layui.js"></script>
+<script th:inline="javascript">
+
+    $(document).ready(function () {
+        $("#bootstrap-table").bootstrapTable({
+            url:"/quarz/listData",  //请求地址1
+            striped : true, //是否显示行间隔色
+            pageNumber : 1, //初始化加载第一页
+            pagination : true,//是否分页
+            sidePagination : 'server',//server:服务器端分页|client：前端分页
+            showSearch:false,
+            smartDisplay:false,//显示右下角的数字条和多少条一页
+            toolbar: "#toolbar",
+            showRefresh : true,//刷新按钮
+            columns : [
+                {
+                    checkbox: true
+                },{
+                field: 'id',
+                title: '任务id'
+            },
+                {
+                    field: 'username',
+                    title: '用户名'
+                },
+                {
+                    field: 'dsrwmc',
+                    title: '定时任务名称',
+
+                },
+                {
+                    field: 'KSRQ',
+                    title: '开始日期',
+
+                },
+                {
+                    field: 'JSRQ',
+                    title: '结束日期',
+
+                },
+                {
+                    field: 'kssj',
+                    title: '开始时间',
+
+                },
+                {
+                    field: 'jssj',
+                    title: '结束时间',
+
+                },
+                {
+                    field:'zt',
+                    title: '定时任务状态',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        return statusTools(row);
+                    }
+
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs" href="javascript:void(0)" onclick="edit(\'' + row.id + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs" href="javascript:void(0)" onclick="remove(\'' + row.id  + '\' ,\'' + row.dsrwmc  + '\')"><i class="fa fa-remove"></i>删除</a> ');
+                        actions.push('<a class="btn btn-info btn-xs" href="javascript:void(0)" onclick="resetPwd(\'' + row.dsrwmc + '\')"><i class="fa fa-key"></i>重置</a>');
+                        return actions.join('');
+                    }
+                }]
+        })
+    })
+    /* 定时任务状态显示 */
+    function statusTools(row) {
+
+        if (row.zt == 0) {
+            return '<i class=\"fa fa-toggle-off text-info fa-2x\" onclick="open1(\'' + row.id + '\')"></i> ';
+        } else {
+            return '<i class=\"fa fa-toggle-on text-info fa-2x\" onclick="close1(\'' + row.id + '\')"></i> ';
+        }
+    }
+    function open1(id){
+
+        $.ajax({
+            url:"/quarz/open",
+            type:"POST",
+            data:{"id":id,"ZT":1},
+            dataType: "json",
+           success:function(data){
+               if(data.code==0){
+                   layer.msg(data.msg, {shift: -1, time: 1000}, function () {
+                       window.location.reload();
+                   });
+               }
+        }
+       })
+    }
+    function close1(id){
+
+        $.ajax({
+                url:"/quarz/close",
+                type:"POST",
+                data:{"ZT":0,"id":id},
+                dataType: "json",
+            success:function(data){
+                if(data.code==0){
+                    layer.msg(data.msg, {shift: -1, time: 1000}, function () {
+                        window.location.reload();
+                    });
+                }
+            }
+        })
+    }
+    layui.use(['layer','laydate','jquery'], function(){
+        var layer = layui.layer;
+        var laydate = layui.laydate;
+        var $ = layui.jquery;
+        laydate.render({
+            elem: '#KSRQ'
+
+
+            ,trigger: 'click'
+        });
+        laydate.render({
+            elem: '#JSRQ'
+
+            ,trigger: 'click'
+        });
+
+    });
+    function add(){
+        layer.open({
+            type: 2,
+            area: ["800px", "400px"],
+            fix: false,
+            //不固定
+            maxmin: true,
+            shade: 0.3,
+            title: "添加定时任务",
+            content: "/quarz/add",
+            // 弹层外区域关闭
+            shadeClose: true,
+
+        });
+    }
+    //跳转操作编辑页面
+    function edit(id) {
+        if(id == null){
+         var rows = $("#bootstrap-table").bootstrapTable('getSelections')[0];
+        if(rows == null){
+            $.modal.alertWarning("请选中一条");
+            return;
+        }
+        //获取这条命数据的id
+        var id = rows.id;
+        }
+            layer.open({
+                type: 2,
+                area: ["800px", "400px"],
+                fix: false,
+                //不固定
+                maxmin: true,
+                shade: 0.3,
+                title: "添加定时任务",
+                content: "/quarz/edit?id=" + id,
+                // 弹层外区域关闭
+                shadeClose: true,
+
+            });
+        }
+//根据条件搜索
+     function serch() {
+         serchTable("bootstrap-table","quarz-form");
+    }
+        var serchTable = function(bt,qf){
+         var params = $("#"+bt).bootstrapTable('getOptions');
+         params.queryParams = function(params){
+             var serch = {};
+             $.each($("#"+qf).serializeArray(),function (i,field){
+                 if(null != field.value && ''!=field.value){
+                     params[field.name] = field.value;
+                 }
+             });
+             return params;
+         }
+         $('#'+bt).bootstrapTable('refresh',params);
+        }
+
+        function remove(id,dsrwmc){
+            $.ajax({
+                url:"/quarz/remove",
+                type:"POST",
+                data:{"id":id,"dsrwmc":dsrwmc},
+                dataType: "json",
+                success:function(data){
+                    if(data.code == 0){
+                        layer.msg(data.msg, {shift: -1, time: 1000}, function () {
+                            window.location.reload();
+                        });
+                    }
+                }
+            })
+        }
+</script>
+</body>
+</html>

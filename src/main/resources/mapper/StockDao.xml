@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.StockDao">
+    <select id="findByName" parameterType="String" resultType="int">
+        select stock_num from stock where stock.stock_name = #{stockname}
+    </select>
+
+    <select id="updateByName" parameterType="string" resultType="integer">
+        update stock s
+        <set>
+            s.stock_num = s.stock_num -1
+        </set>
+            where s.stock_name = #{stockname}
+    </select>
+</mapper>

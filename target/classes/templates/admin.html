@@ -1,0 +1,151 @@
+
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>主页面</title>
+    <link rel="stylesheet" href="/layui1/css/layui.css">
+    <script type="text/javascript" src="/js/libs/jquery-2.1.1.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" media="screen" href="/css/bootstrap.min.css">
+
+</head>
+<style>
+    .admin-header-user img {
+        width: 40px;
+        height: 40px;
+        border-radius: 100%;
+    }
+
+</style>
+
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header" style="background-color: #333333">
+        <div class="layui-logo">用户权限管理系统</div>
+        <ul class="layui-nav layui-layout-right" >
+            <li class="layui-nav-item" pc>
+                <a href="javascript:;" class="admin-header-user">
+                    <img />
+                    <span style="background-color: #00FF00"></span>
+
+                </a>
+                <dl class="layui-nav-child">
+                    <dd>
+                        <a href='javascript:;' lay-id="-999" data-href="/updateMyself"><i class="fa fa-user-circle" aria-hidden="true"></i> 个人信息</a>
+                    </dd>
+                    <dd>
+                        <a href='javascript:;' lay-id="-998" data-href="/updateImage"><i class="fa fa-drupal" aria-hidden="true"></i> 头像</a>
+                    </dd>
+                    <dd>
+                        <a href="/logout"><i class="fa fa-sign-out" aria-hidden="true"></i> 退出</a>
+                    </dd>
+                </dl>
+            </li>
+        </ul>
+    </div>
+    <div class="layui-side layui-bg-black" >
+        <div class="layui-side-scroll" style="width: 200px">
+            <ul class="layui-nav layui-nav-tree"  lay-filter="test">
+                <li class="layui-nav-item layui-nav-itemed">
+                <li class="layui-nav-item"><a href="javascript:;">基本功能</a> <dl class="layui-nav-child">
+                <a href="javascript:;" data-href="/updateMyself">基本资料</a>
+                <a href="javascript:;" data-href="/updateImage">修改头像</a>
+            </dl>
+            </li>
+
+                <li class="layui-nav-item"><a href="javascript:;" data-href="/updateMyself"><span class="
+glyphicon glyphicon-asterisk"></span>  基本资料</a></li>
+                <li class="layui-nav-item"><a href="javascript:;" data-href="/updateImage">修改头像</a></li>
+                <li class="layui-nav-item"><a href="javascript:;" data-href="/changePassword">修改密码</a></li>
+
+                <li class="layui-nav-item"><a href="javascript:;" data-href="/user" class="glyphicon glyphicon-user">  用户查询</a></li>
+                <li class="layui-nav-item"><a href="javascript:;" data-href="/log/list">日志查询</a></li>
+                <li class="layui-nav-item"><a href="javascript:;" data-href="/quarz/index">定时任务</a></li>
+
+                <li class="layui-nav-item"><a href="/logout">退出</a></li>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="layui-body">
+        <!-- 内容主体区域 -->
+        <iframe style="padding:10px 0px 10px 10px;WIDTH: 100%;height:90%;overflow:hidden;" id="content" src="/updateMyself" ></iframe>
+    </div>
+    <div class="layui-footer">
+
+        <div id="timeShow" class="time1" style="float: right;margin-top: 50px"></div>
+
+    </div>
+</div>
+<script src="/layui1/layui.js"></script>
+<script type="text/javascript" src="/js/libs/jquery-2.1.1.min.js"></script>
+<link rel="stylesheet" href="/css/bootstrap.min.css">
+<script type="text/javascript" src="/js/bootstrap/bootstrap.min.js"></script>
+<script type="text/javascript" src="/js/common.js"></script>
+<script>
+    initData();
+    function initData(){
+        $.ajax({
+            type : 'post',
+            url : '/users/current',
+            async : false,
+            success : function(data) {
+              var name = "欢迎"+data.username
+                $(".admin-header-user span").text(name);
+                var pro = window.location.protocol;
+                var host = window.location.host;
+                var domain = pro + "//" + host;
+                var sex = data.sex;
+                var url = data.headImage;
+                if(url == null || url == ""){
+                    if(sex == '男'){
+                        url = "/img/avatars/sunny.png";
+                    } else {
+                        url = "/img/avatars/1.png";
+                    }
+                    url = domain + url;
+                } else {
+                    url = domain + "/phone/" + url;
+                }
+                var img = $(".admin-header-user img");
+                img.attr("src", url);
+            }
+        });
+    }
+    //JavaScript代码区域
+    layui.use(['element','jquery'], function(){
+        var element = layui.element;
+        var $ = layui.jquery;
+        $("a").click(function(){
+            var url = $(this).data("href");
+            /*$("#content").load(url);*/
+            $("#content").attr("src",url);
+        })
+    });
+    var t = null;
+    t = setTimeout(time,1000);//开始执行
+    function time()
+    {
+        clearTimeout(t);//清除定时器
+        dt = new Date();
+        var y=dt.getYear()+1900;
+        var mm=dt.getMonth()+1;
+        var d=dt.getDate();
+        var weekday=["星期日","星期一","星期二","星期三","星期四","星期五","星期六"];
+        var day=dt.getDay();
+        var h=dt.getHours();
+        var m=dt.getMinutes();
+        var s=dt.getSeconds();
+        if(h<10){h="0"+h;}
+        if(m<10){m="0"+m;}
+        if(s<10){s="0"+s;}
+        document.getElementById("timeShow").innerHTML = y+"/"+mm+"/"+d+""+weekday[day]+":"+h+":"+m+":"+s+"";
+        t = setTimeout(time,1000); //设定定时器，循环执行
+    }
+</script>
+</body>
+</html>
