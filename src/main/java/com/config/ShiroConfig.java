@@ -31,6 +31,7 @@ public class ShiroConfig {
       * anon ：无需认证（登录）可访问
       * authc : 要认证（登录）才可访问
       * */
+      filterMap.put("/wechat/index","anon");
       filterMap.put("/code","anon");
       filterMap.put("/admin","authc");
       filterMap.put("/updateMyself","authc");

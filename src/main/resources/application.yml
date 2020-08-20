@@ -47,3 +47,8 @@
  files:
    path: ${file-path:d:/phone}
 
+ wechat:
+   appid: wx66445e70b318aebf
+   appsecret: 9a6f50d1ff9aad460d73f82f405b8550
+
+
