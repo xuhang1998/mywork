@@ -74,7 +74,7 @@ public class WeChatLoginController {
 
         System.out.println("session_key=="+session_key);
         System.out.println("openid=="+openid);
-        System.out.println("access_token=="+access_token);
+
         StringBuffer userUrl = new StringBuffer();
         userUrl.append(WX_USERINFO_URL).append("?access_token=").append(access_token).append("&openid=").append(openid);
 //		String userRet = this.get(userUrl.toString());
